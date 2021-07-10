@@ -5,6 +5,7 @@ type Todo = {
   value: string;
   id: number;
   checked: boolean;
+  removed: boolean;
 };
 
 const App: React.VFC = () => {
@@ -23,6 +24,7 @@ const App: React.VFC = () => {
       value: text,
       id: new Date().getTime(),
       checked: false,
+      removed: false,
     };
     setTodos([newTodo, ...todos]); //...は配列やリストの括弧を外してくれる
     setText("");
@@ -48,6 +50,16 @@ const App: React.VFC = () => {
     setTodos(newTodos);
   };
 
+  const handleOnRemove = (id: number, removed: boolean) => {
+    const newTodos: Todo[] = todos.map((todo) => {
+      if (todo.id === id) {
+        todo.removed = !removed;
+      }
+      return todo;
+    });
+    setTodos(newTodos);
+  };
+
   return (
     <div>
       <form onSubmit={(e) => handleOnSubmit(e)}>
@@ -64,15 +76,19 @@ const App: React.VFC = () => {
             <li key={todo.id}>
               <input
                 type="checkbox"
+                disabled={todo.removed}
                 checked={todo.checked}
                 onChange={(e) => handleOnCheck(todo.id, todo.checked)}
               />
               <input
                 type="text"
-                disabled={todo.checked}
+                disabled={todo.checked || todo.removed}
                 value={todo.value}
                 onChange={(e) => handleOnEdit(todo.id, e.target.value)}
               />
+              <button onClick={() => handleOnRemove(todo.id, todo.removed)}>
+                {todo.removed ? "復元" : "削除"}
+              </button>
             </li>
           );
         })}
