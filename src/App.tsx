@@ -4,6 +4,7 @@ import "./App.css";
 type Todo = {
   value: string;
   id: number;
+  checked: boolean;
 };
 
 const App: React.VFC = () => {
@@ -21,6 +22,7 @@ const App: React.VFC = () => {
     const newTodo: Todo = {
       value: text,
       id: new Date().getTime(),
+      checked: false,
     };
     setTodos([newTodo, ...todos]); //...は配列やリストの括弧を外してくれる
     setText("");
@@ -30,6 +32,16 @@ const App: React.VFC = () => {
     const newTodos: Todo[] = todos.map((todo) => {
       if (todo.id === id) {
         todo.value = value;
+      }
+      return todo;
+    });
+    setTodos(newTodos);
+  };
+
+  const handleOnCheck = (id: number, checked: boolean) => {
+    const newTodos: Todo[] = todos.map((todo) => {
+      if (todo.id === id) {
+        todo.checked = !checked;
       }
       return todo;
     });
@@ -51,7 +63,13 @@ const App: React.VFC = () => {
           return (
             <li key={todo.id}>
               <input
+                type="checkbox"
+                checked={todo.checked}
+                onChange={(e) => handleOnCheck(todo.id, todo.checked)}
+              />
+              <input
                 type="text"
+                disabled={todo.checked}
                 value={todo.value}
                 onChange={(e) => handleOnEdit(todo.id, e.target.value)}
               />
