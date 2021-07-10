@@ -8,9 +8,12 @@ type Todo = {
   removed: boolean;
 };
 
+type Filter = "all" | "checked" | "unchecked" | "removed"; //Union型
+
 const App: React.VFC = () => {
   const [text, setText] = useState("");
   const [todos, setTodos] = useState<Todo[]>([]); //Todo型の配列
+  const [filter, setFilter] = useState<Filter>("all"); //初期値はall
 
   const handleOnSubmit = (
     e: React.FormEvent<HTMLFormElement | HTMLInputElement>
@@ -60,18 +63,65 @@ const App: React.VFC = () => {
     setTodos(newTodos);
   };
 
+  const filteredTodos: Todo[] = todos.filter((todo) => {
+    switch (
+      filter //trueを返すものだけのリストにしている
+    ) {
+      case "all":
+        return !todo.removed;
+      case "checked":
+        return todo.checked && !todo.removed;
+      case "unchecked":
+        return !todo.checked && !todo.removed;
+      case "removed":
+        return todo.removed;
+      default:
+        return todo;
+    }
+  });
+
+  const handleOnEmpty = () => {
+    const newTodos: Todo[] = todos.filter((todo) => !todo.removed);
+    setTodos(newTodos);
+  };
+
   return (
     <div>
-      <form onSubmit={(e) => handleOnSubmit(e)}>
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
-        <input type="submit" value="追加" onSubmit={(e) => handleOnSubmit(e)} />
-      </form>
+      <select
+        defaultValue="all"
+        onChange={(e) => setFilter(e.target.value as Filter)} //asは型アサーション。変数の型を上書き
+      >
+        <option value="all">すべてのタスク</option>
+        <option value="checked">完了したタスク</option>
+        <option value="unchecked">未完了のタスク</option>
+        <option value="removed">削除済みのタスク</option>
+      </select>
+      {filter === "removed" ? (
+        <button
+          onClick={() => handleOnEmpty()}
+          disabled={todos.filter((todo) => todo.removed).length === 0}
+        >
+          ゴミ箱を空にする
+        </button>
+      ) : (
+        <form onSubmit={(e) => handleOnSubmit(e)}>
+          <input
+            type="text"
+            value={text}
+            disabled={filter === "checked"}
+            onChange={(e) => setText(e.target.value)}
+          />
+          <input
+            type="submit"
+            disabled={filter === "checked"}
+            value="追加"
+            onSubmit={(e) => handleOnSubmit(e)}
+          />
+        </form>
+      )}
+
       <ul>
-        {todos.map((todo) => {
+        {filteredTodos.map((todo) => {
           return (
             <li key={todo.id}>
               <input
