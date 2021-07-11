@@ -2,7 +2,10 @@
 
 Reactで動作する簡易的なToDoアプリケーションです。
 
+【表示例】
+
 ![表示例](Images/表示例.png "表示例")
+
 
 
 ## Available Scripts
